@@ -1,0 +1,30 @@
+<div class="container text-center mt-5">
+    <div>
+        <img src="assets\admin-icon.png" alt="Imagen paciente" class="img-fluid rounded mb-4" width="100px">
+    </div>
+    
+    <h1>Administrador</h1>
+    
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-5 mb-3">
+            <input type="text" id="nombre" name="nombre" class="form-control mb-3" placeholder="nombre..." [(ngModel)]="nombre">
+            <input type="email" id="mail" name="mail" class="form-control mb-3" placeholder="mail..." [(ngModel)]="mail">
+            <input type="number" id="dni" name="dni" class="form-control mb-3" placeholder="dni..." [(ngModel)]="dni">
+        </div>
+        
+        <div class="col-md-5 mb-3">
+            <input type="text" id="apellido" name="apellido" class="form-control mb-3" placeholder="apellido..." [(ngModel)]="apellido">
+            <input type="password" id="password" name="password" class="form-control mb-3" placeholder="contraseña..." [(ngModel)]="password">
+            <input type="number" id="edad" name="edad" class="form-control mb-3" placeholder="edad..." [(ngModel)]="edad">
+            
+        </div>
+
+        <div class="col-md-5 mb-3 text-center">
+             <p>Seleccione una imagen para su Perfil</p>
+            <!-- <label for="archivoPerfil" class="form-label">Seleccione una imagen para su Perfil</label> -->
+            <input type="file" id="archivoPerfil" name="archivoPerfil" class="form-control mb-3" (change)="onFileChange($event)">
+        </div>
+    </div>
+    <button (click)="registrarAdmin()" class="btn btn-dark btn-full-width">Registrarse</button>
+</div>
+

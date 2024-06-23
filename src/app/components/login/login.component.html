@@ -1,0 +1,15 @@
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4 login-card">
+        <div class="text-center mb-4">
+            <img src="assets\corazon-medico.png" alt="Login Icon" class="img-fluid" width="100px">
+        </div>
+        
+        <h1 class="text-center mb-4">Ingresar</h1>
+        
+        <div>   
+            <input type="email" id="mail" name="mail" class="form-control mb-3" placeholder="mail..." [(ngModel)]="mail">
+            <input type="password" id="password" name="password" class="form-control mb-3" placeholder="contraseña..." [(ngModel)]="password">
+        </div>
+        <button class="btn btn-dark btn-block" (click)="login()">Acceder</button>    
+    </div>
+</div>
