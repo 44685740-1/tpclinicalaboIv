@@ -12,9 +12,25 @@ import { AuthService } from '../../services/auth.service';
 export default class LoginComponent {
   mail: string = '';
   password: string = '';
+
   constructor(private auth : AuthService){}
   
   login(){
     this.auth.login(this.mail,this.password);
+  }
+
+  completarCamposAdmin() {
+    this.mail = "juanperez@gmail.com";
+    this.password = "elcrack123";
+  }
+
+  completarCamposEspecialista() {
+    this.mail = "carolagangi@gmail.com";
+    this.password = "palmeras";
+  }
+
+  completarCamposPaciente() {
+    this.mail = "ahuitzcaracciolo@gmail.com";
+    this.password = "elgaturro";
   }
 }

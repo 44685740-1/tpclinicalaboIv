@@ -1,0 +1,83 @@
+.container {
+  margin-top: 2rem;
+  max-width: 100%; /* Ensure container does not exceed screen width */
+}
+
+.table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  background-color: transparent;
+  font-size: 1rem; /* Decrease overall font size */
+}
+
+.table th,
+.table td {
+  padding: 1rem; /* Adjust padding for smaller cells */
+  vertical-align: middle; /* Center text vertically */
+  text-align: center; /* Center text horizontally */
+}
+
+.table th {
+  background-color: #343a40; /* Dark header background */
+  color: #fff; /* White text color */
+  font-size: 1.2rem; /* Adjust font size for headers */
+}
+
+.table td {
+  font-size: 1rem; /* Adjust font size for cell content */
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+.profile-images {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem; /* Space between images */
+}
+
+.profile-image {
+  width: 50px; /* Smaller width for profile images */
+  height: 50px; /* Smaller height for profile images */
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.custom-switch .custom-control-label::before {
+  background-color: #ccc;
+}
+
+.custom-switch .custom-control-input:checked ~ .custom-control-label::before {
+  background-color: #28a745; /* Green color for toggle */
+}
+
+.custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+  transform: translateX(1.5rem); /* Move toggle button to the right when checked */
+}
+
+.custom-switch .custom-control-label::after {
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: #fff;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.td-profile {
+  width: 180px; /* Adjust the width of the profile image column */
+  vertical-align: middle;
+}
+
+.img-fluid {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.mr-4 {
+  margin-right: 0.5rem;
+}

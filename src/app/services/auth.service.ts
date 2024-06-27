@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Firestore, Timestamp } from '@angular/fire/firestore';
-import { addDoc, collection, getDoc, setDoc, getDocs, updateDoc, doc, query, where } from '@angular/fire/firestore';
+import { addDoc, collection, getDoc, setDoc, getDocs, updateDoc, doc, query, where, DocumentData } from '@angular/fire/firestore';
 import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, signOut, authState, user, User } from '@angular/fire/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
-
 
 @Injectable({
   providedIn: 'root'
@@ -34,14 +33,15 @@ export class AuthService {
         title: 'Verificación de Email',
         text: 'Se ha enviado un correo de verificación. Por favor verifica tu email antes de continuar.',
       });
+      //this.router.navigate(["/home/login"]);
 
       // Periodically check if email is verified
       const checkEmailVerified = setInterval(async () => {
         await user.reload();
         if (user.emailVerified) {
           clearInterval(checkEmailVerified);
-          await this.saveUserDataPaciente(user, nombre, apellido, dni, edad, obraSocial, file1, file2);
-          this.router.navigate(["/login"]);
+          await this.saveUserDataPaciente(user, nombre, apellido, password, dni, edad, obraSocial, file1, file2);
+          //this.router.navigate(["/home/login"]);
         }
       }, 3000);
     } catch (error) {
@@ -54,12 +54,12 @@ export class AuthService {
     }
   }
 
-  async registerMedico(nombre: string, apellido: string, mail: string, password: string, dni: number, edad: number, especialidad: string, file: File): Promise<void> {
+  async registerMedico(nombre: string, apellido: string, mail: string, password: string, dni: number, edad: number, especialidades: string[], file: File): Promise<void> {
     try {
       const userCredential = await createUserWithEmailAndPassword(this.authF, mail, password);
       const user = userCredential.user;
-      this.saveUserDataMedico(user, nombre, apellido, dni, edad, especialidad, file);
-      this.router.navigate(["/login"]);
+      this.saveUserDataMedico(user, nombre, apellido, password, dni, edad, especialidades, file);
+      //this.router.navigate(["/home/login"]);
       Swal.fire({
         icon: 'info',
         title: 'Verificacion de tu Cuenta',
@@ -79,8 +79,8 @@ export class AuthService {
     try {
       const userCredential = await createUserWithEmailAndPassword(this.authF, mail, password);
       const user = userCredential.user;
-      this.saveUserDataAdmin(user, nombre, apellido, dni, edad, file);
-      this.router.navigate(["/login"]);
+      this.saveUserDataAdmin(user, nombre, apellido, password, dni, edad, file);
+      //this.router.navigate(["/home/login"]);
     } catch (error) {
       console.error('Error registrando Administrador:', error);
       Swal.fire({
@@ -91,7 +91,7 @@ export class AuthService {
     }
   }
 
-  private async saveUserDataAdmin(user: any, nombre: string, apellido: string, dni: number, edad: number, file: File): Promise<void>{
+  private async saveUserDataAdmin(user: any, nombre: string, apellido: string, password: string, dni: number, edad: number, file: File): Promise<void>{
     const storage = getStorage();
     const storageRef = ref(storage);
 
@@ -106,6 +106,7 @@ export class AuthService {
       nombre: nombre,
       apellido: apellido,
       mail: user.email,
+      password: password,
       dni: dni,
       edad: edad,
       rol: 'admin',
@@ -113,7 +114,7 @@ export class AuthService {
     });
   }
 
-  private async saveUserDataMedico(user: any, nombre: string, apellido: string, dni: number, edad: number, especialidad: string, file: File): Promise<void> {
+  private async saveUserDataMedico(user: any, nombre: string, apellido: string, password : string, dni: number, edad: number, especialidades: string[], file: File): Promise<void> {
     const storage = getStorage();
     const storageRef = ref(storage);
 
@@ -128,16 +129,17 @@ export class AuthService {
       nombre: nombre,
       apellido: apellido,
       mail: user.email,
+      password: password,
       dni: dni,
       edad: edad,
-      especialidad: especialidad,
+      especialidades: especialidades,
       aprobadaPorAdmin: false,
       rol: 'medico',
       profileImage: downloadURL
     });
   }
 
-  private async saveUserDataPaciente(user: any, nombre: string, apellido: string, dni: number, edad: number, obraSocial: string, file1: File, file2: File): Promise<void> {
+  private async saveUserDataPaciente(user: any, nombre: string, apellido: string, password : string, dni: number, edad: number, obraSocial: string, file1: File, file2: File): Promise<void> {
     const storage = getStorage();
     const storageRef = ref(storage);
 
@@ -156,6 +158,7 @@ export class AuthService {
       nombre: nombre,
       apellido: apellido,
       mail: user.email,
+      password: password,
       dni: dni,
       edad: edad,
       obraSocial: obraSocial,
@@ -166,23 +169,53 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<void> {
-    const userCredential = await signInWithEmailAndPassword(this.authF, email, password);
-    const user = userCredential.user;
-    this.getUserRoleByUid(user.uid).subscribe(role => {
-      switch (role) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(this.authF, email, password);
+      const user = userCredential.user;
+      const rol = await this.getUserRoleByUid(user.uid).toPromise();
+      switch (rol) {
         case 'paciente':
-          this.signInPaciente(user);
+          await this.signInPaciente(user);
           break;
         case 'medico':
-          this.signInMedico(user);
+          await this.signInMedico(user);
           break;
         case 'admin':
-          this.router.navigate(["/home"]);
-            break;
+          this.router.navigate(["/administrador"]);
+          break;
         default:
+          await signOut(this.authF);
+          Swal.fire({
+            icon: 'warning',
+            title: 'Verificación de Email',
+            text: 'Tu email no está verificado. Por favor verifica tu email antes de iniciar sesión.',
+          });
           break;
       }
-    });
+    } catch (error) {
+      console.error('Login error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un error intentando iniciar sesión',
+      });
+    }
+  }
+
+  async logout(): Promise<void> {
+    try {
+      await signOut(this.authF);
+      console.log('Logout successful');
+      this.router.navigate(["/home"]);
+    } catch (error) {
+      console.error('Logout error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrio Un Error intentando Cerrar la Sesion',
+      });
+      throw error;
+    }
   }
 
   async signInMedico(user: any) {
@@ -196,10 +229,15 @@ export class AuthService {
         });
         await signOut(this.authF);
       } else {
-        this.router.navigate(["/home"]);
+        this.router.navigate(["/especialista"]);
       }
     } catch (error) {
       console.error('Error checking approval status:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un error verificando el estado de aprobación.',
+      });
     }
   }
 
@@ -215,8 +253,7 @@ export class AuthService {
         });
         return;
       }
-
-      this.router.navigate(["/home"]);
+      this.router.navigate(["/paciente"]);
     } catch (error) {
       console.error('Login error:', error);
       Swal.fire({
@@ -243,6 +280,30 @@ export class AuthService {
     );
   }
 
+
+  //guard admin
+  isAdmin(uid: string): Observable<boolean> {
+    const userCollectionRef = collection(this.firestore, 'usuarios');
+    const userQuery = query(userCollectionRef, where('uid', '==', uid));
+
+    return from(getDocs(userQuery)).pipe(
+      map(querySnapshot => {
+        if (!querySnapshot.empty) {
+          const userData = querySnapshot.docs[0].data() as { rol: string };
+          return userData.rol === 'admin';
+        } else {
+          return false;
+        }
+      })
+    );
+  }
+
+  getCurrentUser(): Observable<User | null> {
+    return authState(this.authF);
+  }
+  //guard admin
+
+
   getUserAprobadoPorAdminByUid(uid: string): Observable<string | null> {
     const userCollectionRef = collection(this.firestore, 'usuarios');
     const userQuery = query(userCollectionRef, where('uid', '==', uid));
@@ -257,5 +318,27 @@ export class AuthService {
         }
       })
     );
+  }
+
+
+  async getUsers(): Promise<any[]> {
+    const usersCollection = collection(this.firestore, 'usuarios');
+    const snapshot = await getDocs(usersCollection);
+    const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return users;
+  }
+
+  async updateUserAprobadaPorAdmin(uid: string, value: boolean): Promise<void> {
+    const usersCollection = collection(this.firestore, 'usuarios');
+    const userQuery = query(usersCollection, where('uid', '==', uid));
+    const querySnapshot = await getDocs(userQuery);
+
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      const userDocRef = doc(this.firestore, `usuarios/${userDoc.id}`);
+      await updateDoc(userDocRef, { aprobadaPorAdmin: value });
+    } else {
+      throw new Error('User not found');
+    }
   }
 }

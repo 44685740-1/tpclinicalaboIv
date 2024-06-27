@@ -1,0 +1,6 @@
+.navbar {
+    background-color: #624991; /* Purple background color */
+  }
+  .navbar-dark .navbar-nav .nav-link {
+    color: #fff; /* White text color */
+  }

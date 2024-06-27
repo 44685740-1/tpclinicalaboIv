@@ -7,9 +7,15 @@
         <h1 class="text-center mb-4">Ingresar</h1>
         
         <div>   
-            <input type="email" id="mail" name="mail" class="form-control mb-3" placeholder="mail..." [(ngModel)]="mail">
-            <input type="password" id="password" name="password" class="form-control mb-3" placeholder="contraseña..." [(ngModel)]="password">
+            <input type="email"  #emailLogin id="mail" name="mail" class="form-control mb-3" placeholder="mail..." [(ngModel)]="mail">
+            <input type="password" #passwordLogin id="password" name="password" class="form-control mb-3" placeholder="contraseña..." [(ngModel)]="password">
         </div>
         <button class="btn btn-dark btn-block" (click)="login()">Acceder</button>    
     </div>
 </div>
+
+<button (click)="completarCamposAdmin()" class="btn btn-dark">Admin</button>
+<button (click)="completarCamposEspecialista()" class="btn btn-dark">Especialista</button>
+<button (click)="completarCamposPaciente()" class="btn btn-dark">Paciente</button>
+
+

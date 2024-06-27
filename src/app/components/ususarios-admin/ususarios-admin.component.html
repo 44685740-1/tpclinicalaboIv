@@ -1,0 +1,107 @@
+<h1 class="d-flex align-items-center justify-content-center text-dark mt-5">Usuarios de la Clinica</h1>
+
+<div class="container mt-5">
+  <table class="table table-striped table-bordered table-hover">
+    <thead class="thead-dark">
+      <tr>
+        <th>Foto de Perfil</th>
+        <th>Rol</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Mail</th>
+        <th>Edad</th>
+        <th>DNI</th>
+        <th>Obra Social</th>
+        <th>Especialidades</th>
+        <th>Habilitado</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for(user of users; track user) {
+      <tr>
+        <td class="td-profile">
+          @if(user.rol === 'paciente')
+          {
+          <div class="profile-images">
+            @for(img of user.profileImages; track img)
+            {
+            <img [src]="img" alt="Profile Image" class="img-fluid rounded mr-4">
+            }
+          </div>
+          } @else
+          {
+          <img [src]="user.profileImage ? user.profileImage : 'assets\\default-image-icon.png'" alt="Profile Image"
+            class="img-fluid rounded">
+          }
+        </td>
+        <td>{{ user.rol }}</td>
+        <td>{{ user.nombre }}</td>
+        <td>{{ user.apellido }}</td>
+        <td>{{ user.mail }}</td>
+        <td>{{ user.edad }}</td>
+        <td>{{ user.dni }}</td>
+        <td>{{ user.obraSocial ? user.obraSocial : 'N/A' }}</td>
+        <td>
+          @if(user.especialidades)
+          {
+          @for (especialidad of user.especialidades; track especialidad) {
+          <div>
+            {{ especialidad }}
+          </div>
+          }
+          }@else
+          {
+          N/A
+          }
+
+        </td>
+
+        <!-- <td>{{ user.especialidades ? user.especialidades : 'N/A' }}</td> -->
+        <td>
+          @if(user.aprobadaPorAdmin !== undefined)
+          {
+          <div class="d-flex justify-content-center">
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="customSwitch{{ user.uid }}"
+                [checked]="user.aprobadaPorAdmin" (change)="onAprobadaPorAdminToggle(user)">
+              <label class="custom-control-label" for="customSwitch{{ user.uid }}"></label>
+            </div>
+          </div>
+          } @else
+          {
+          N/A
+          }
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h1 class="d-flex align-items-center justify-content-center text-dark mt-5">Agregar Usuario...</h1>
+<div class="d-flex align-items-center justify-content-around mt-5">
+  <button (click)="setUsuarioRolAgregarPaciente()" class="btn btn-dark">Paciente</button>
+  <button (click)="setUsuarioRolAgregarEspecialista()" class="btn btn-dark">Especilista</button>
+  <button (click)="setUsuarioRolAgregarAdmin()" class="btn btn-dark">Administrador</button>
+</div>
+
+@switch (rolUsuarioAgregar) {
+@case ("paciente") {
+<app-register-paciente></app-register-paciente>
+<div class="d-flex align-items-center justify-content-center text-dark mt-2">
+  <button (click)="setUsuarioRolAgregarDefault()" class="btn btn-danger">Cancelar</button>
+</div>
+}
+@case ("admin") {
+<app-register-admin></app-register-admin>
+<div class="d-flex align-items-center justify-content-center text-dark mt-2">
+  <button (click)="setUsuarioRolAgregarDefault()" class="btn btn-danger">Cancelar</button>
+</div>
+}
+@case ("especialista") {
+<app-register-medico></app-register-medico>
+<div class="d-flex align-items-center justify-content-center text-dark mt-2">
+  <button (click)="setUsuarioRolAgregarDefault()" class="btn btn-danger">Cancelar</button>
+</div>
+}
+}

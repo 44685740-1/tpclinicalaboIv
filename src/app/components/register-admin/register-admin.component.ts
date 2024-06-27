@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../services/auth.service';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule, FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-register-admin',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule,FormsModule, ReactiveFormsModule],
   templateUrl: './register-admin.component.html',
   styleUrl: './register-admin.component.css'
 })
@@ -20,7 +20,19 @@ export default class RegisterAdminComponent {
   edad: number | null = null;
   archivoPerfil: File | null = null;
 
-  constructor(private authService: AuthService) {}
+  registerForm: FormGroup;
+
+  constructor(private authService: AuthService, private fb: FormBuilder){
+    this.registerForm = this.fb.group({
+      nombreRegister: ['', Validators.required],
+      apellidoRegister: ['', Validators.required],
+      emailRegister: ['', [Validators.required, Validators.email]],
+      passwordRegister: ['', Validators.required],
+      dniRegister: ['', Validators.required],
+      edadRegister: ['', Validators.required],
+      archivoRegister: ['', Validators.required],
+    });
+  }
 
   onFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -30,23 +42,32 @@ export default class RegisterAdminComponent {
   }
 
   async registrarAdmin(): Promise<void> {
-    try {
-      await this.authService.registerAdmin(
-        this.nombre,
-        this.apellido,
-        this.mail,
-        this.password,
-        this.dni!,
-        this.edad!,
-        this.archivoPerfil!
-      );
+    if (this.nombre.trim() !== "" && this.nombre != null && this.apellido.trim() !== "" && this.apellido != null && this.mail.trim() !== "" && this.mail != null && this.password.trim() !== "" && this.password != null && this.dni != null && this.dni > 0 && this.edad != null && this.edad > 0 && this.archivoPerfil != null) {
+      try {
+        await this.authService.registerAdmin(
+          this.nombre,
+          this.apellido,
+          this.mail,
+          this.password,
+          this.dni!,
+          this.edad!,
+          this.archivoPerfil!
+        );
+        Swal.fire({
+          icon: 'success',
+          title: 'Registro Exitoso',
+          text: 'Te has Registrado Correctamente',
+        });
+      } catch (error) {
+        console.error('Error registrando Administrador:', error);
+      }
+    } else {
       Swal.fire({
-        icon: 'success',
-        title: 'Registro Exitoso',
-        text: 'Te has Registrado Correctamente',
+        icon: 'error',
+        title: 'Error',
+        text: 'Necesita Completar todos los Campos Requeridos',
       });
-    } catch (error) {
-      console.error('Error registrando Administrador:', error);
+      return;
     }
   }
 }
